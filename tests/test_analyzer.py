@@ -53,3 +53,17 @@ if True
         issue["type"] == "syntax_error"
         for issue in issues
     )
+def test_detects_dangerous_subprocess():
+    code = """
+import subprocess
+
+subprocess.run(user_command, shell=True)
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY003"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )

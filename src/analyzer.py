@@ -1,5 +1,9 @@
 import ast
 
+from src.rules.eval_rule import check_eval
+from src.rules.secret_rule import check_hardcoded_secret
+from src.rules.subprocess_rule import check_dangerous_subprocess
+
 
 def analyze_code(code):
     """
@@ -12,37 +16,25 @@ def analyze_code(code):
         tree = ast.parse(code)
     except SyntaxError as error:
         issues.append({
+            "rule": "PY000",
             "type": "syntax_error",
+            "severity": "HIGH",
             "line": error.lineno,
-            "message": "The Python code contains a syntax error."
+            "message": "The Python code contains a syntax error.",
+            "recommendation": "Fix the syntax error before running the code."
         })
 
         return issues
 
     for node in ast.walk(tree):
 
-        # Detect eval()
-        if isinstance(node, ast.Call):
-            if isinstance(node.func, ast.Name):
-                if node.func.id == "eval":
-                    issues.append({
-                        "type": "security",
-                        "line": node.lineno,
-                        "message": "Use of eval() can execute untrusted code."
-                    })
+        # Run eval security rule
+        issues.extend(check_eval(node))
 
-        # Detect hardcoded passwords
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
+        # Run hardcoded secret rule
+        issues.extend(check_hardcoded_secret(node))
 
-                if isinstance(target, ast.Name):
-                    variable_name = target.id.lower()
-
-                    if "password" in variable_name or "secret" in variable_name:
-                        issues.append({
-                            "type": "security",
-                            "line": node.lineno,
-                            "message": "Possible hardcoded password or secret."
-                        })
+        # Run dangerous subprocess rule
+        issues.extend(check_dangerous_subprocess(node))
 
     return issues
