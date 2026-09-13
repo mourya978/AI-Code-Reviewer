@@ -189,3 +189,32 @@ cursor.execute(
         issue["rule"] == "PY006"
         for issue in issues
     )
+def test_detects_path_traversal_f_string():
+    code = """
+filename = input("Enter filename: ")
+
+with open(f"/var/data/{filename}", "r") as file:
+    data = file.read()
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY007"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )
+
+
+def test_allows_safe_static_file_path():
+    code = """
+with open("/var/data/config.json", "r") as file:
+    data = file.read()
+"""
+
+    issues = analyze_code(code)
+
+    assert not any(
+        issue["rule"] == "PY007"
+        for issue in issues
+    )

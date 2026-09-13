@@ -4,6 +4,7 @@ from src.rules.subprocess_rule import check_dangerous_subprocess
 from src.rules.crypto_rule import check_weak_crypto
 from src.rules.pickle_rule import check_insecure_pickle
 from src.rules.sql_rule import check_sql_injection
+from src.rules.path_rule import check_path_traversal
 
 
 SECURITY_RULES = [
@@ -13,4 +14,5 @@ SECURITY_RULES = [
     check_weak_crypto,
     check_insecure_pickle,
     check_sql_injection,
+    check_path_traversal,
 ]
