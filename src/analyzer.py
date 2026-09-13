@@ -3,7 +3,7 @@ import ast
 from src.rules.eval_rule import check_eval
 from src.rules.secret_rule import check_hardcoded_secret
 from src.rules.subprocess_rule import check_dangerous_subprocess
-
+from src.rules.crypto_rule import check_weak_crypto
 
 def analyze_code(code):
     """
@@ -37,4 +37,6 @@ def analyze_code(code):
         # Run dangerous subprocess rule
         issues.extend(check_dangerous_subprocess(node))
 
+        # Run weak cryptography rule
+        issues.extend(check_weak_crypto(node))
     return issues

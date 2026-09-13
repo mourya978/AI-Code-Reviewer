@@ -67,3 +67,46 @@ subprocess.run(user_command, shell=True)
         and issue["severity"] == "HIGH"
         for issue in issues
     )
+def test_detects_md5():
+    code = """
+import hashlib
+
+hashlib.md5(data)
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY004"
+        and "MD5" in issue["message"]
+        for issue in issues
+    )
+
+
+def test_detects_sha1():
+    code = """
+import hashlib
+
+hashlib.sha1(data)
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY004"
+        and "SHA1" in issue["message"]
+        for issue in issues
+    )
+def test_allows_sha256():
+    code = """
+import hashlib
+
+hashlib.sha256(data)
+"""
+
+    issues = analyze_code(code)
+
+    assert not any(
+        issue["rule"] == "PY004"
+        for issue in issues
+    )
