@@ -218,3 +218,35 @@ with open("/var/data/config.json", "r") as file:
         issue["rule"] == "PY007"
         for issue in issues
     )
+def test_detects_command_injection_f_string():
+    code = """
+import os
+
+host = input("Enter host: ")
+
+os.system(f"ping {host}")
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY008"
+        and issue["severity"] == "CRITICAL"
+        for issue in issues
+    )
+
+
+def test_allows_static_os_command():
+    code = """
+import os
+
+os.system("whoami")
+"""
+
+    issues = analyze_code(code)
+
+    assert not any(
+        issue["rule"] == "PY008"
+        for issue in issues
+    )
+    

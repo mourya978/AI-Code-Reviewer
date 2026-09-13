@@ -5,6 +5,7 @@ from src.rules.crypto_rule import check_weak_crypto
 from src.rules.pickle_rule import check_insecure_pickle
 from src.rules.sql_rule import check_sql_injection
 from src.rules.path_rule import check_path_traversal
+from src.rules.command_rule import check_command_injection
 
 
 SECURITY_RULES = [
@@ -15,4 +16,5 @@ SECURITY_RULES = [
     check_insecure_pickle,
     check_sql_injection,
     check_path_traversal,
+    check_command_injection,
 ]
