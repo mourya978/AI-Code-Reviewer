@@ -110,3 +110,17 @@ hashlib.sha256(data)
         issue["rule"] == "PY004"
         for issue in issues
     )
+def test_detects_insecure_pickle():
+    code = """
+import pickle
+
+data = pickle.loads(untrusted_data)
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY005"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )
