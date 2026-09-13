@@ -124,3 +124,30 @@ data = pickle.loads(untrusted_data)
         and issue["severity"] == "HIGH"
         for issue in issues
     )
+
+
+def test_findings_are_sorted_by_severity():
+    code = """
+import hashlib
+import pickle
+import subprocess
+
+password = "secret123"
+
+hashlib.md5(data)
+
+subprocess.run(command, shell=True)
+
+pickle.loads(data)
+"""
+
+    issues = analyze_code(code)
+
+    severities = [issue["severity"] for issue in issues]
+
+    assert severities == [
+        "HIGH",
+        "HIGH",
+        "HIGH",
+        "MEDIUM",
+    ]

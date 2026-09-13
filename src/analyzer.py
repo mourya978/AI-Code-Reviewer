@@ -1,6 +1,7 @@
 import ast
 
 from src.rules import SECURITY_RULES
+from src.finding_manager import sort_findings
 
 
 def analyze_code(code):
@@ -29,4 +30,4 @@ def analyze_code(code):
         for rule in SECURITY_RULES:
             issues.extend(rule(node))
 
-    return issues
+    return sort_findings(issues)
