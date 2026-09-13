@@ -151,3 +151,41 @@ pickle.loads(data)
         "HIGH",
         "MEDIUM",
     ]
+def test_detects_sql_injection_f_string():
+    code = """
+import sqlite3
+
+user_id = input("Enter user ID: ")
+
+cursor.execute(
+    f"SELECT * FROM users WHERE id={user_id}"
+)
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY006"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )
+
+
+def test_allows_parameterized_sql_query():
+    code = """
+import sqlite3
+
+user_id = input("Enter user ID: ")
+
+cursor.execute(
+    "SELECT * FROM users WHERE id=?",
+    (user_id,)
+)
+"""
+
+    issues = analyze_code(code)
+
+    assert not any(
+        issue["rule"] == "PY006"
+        for issue in issues
+    )

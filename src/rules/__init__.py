@@ -3,6 +3,7 @@ from src.rules.secret_rule import check_hardcoded_secret
 from src.rules.subprocess_rule import check_dangerous_subprocess
 from src.rules.crypto_rule import check_weak_crypto
 from src.rules.pickle_rule import check_insecure_pickle
+from src.rules.sql_rule import check_sql_injection
 
 
 SECURITY_RULES = [
@@ -11,4 +12,5 @@ SECURITY_RULES = [
     check_dangerous_subprocess,
     check_weak_crypto,
     check_insecure_pickle,
+    check_sql_injection,
 ]
