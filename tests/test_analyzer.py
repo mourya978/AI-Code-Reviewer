@@ -278,3 +278,32 @@ token = secrets.randbelow(900000)
         issue["rule"] == "PY009"
         for issue in issues
     )    
+def test_detects_weak_password_hash():
+    code = """
+import hashlib
+
+password_hash = hashlib.sha256(password.encode()).hexdigest()
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY010"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )
+
+
+def test_allows_sha256_for_non_password_use():
+    code = """
+import hashlib
+
+file_hash = hashlib.sha256(file_data).hexdigest()
+"""
+
+    issues = analyze_code(code)
+
+    assert not any(
+        issue["rule"] == "PY010"
+        for issue in issues
+    )

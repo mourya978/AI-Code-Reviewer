@@ -7,6 +7,7 @@ from src.rules.sql_rule import check_sql_injection
 from src.rules.path_rule import check_path_traversal
 from src.rules.command_rule import check_command_injection
 from src.rules.random_rule import check_insecure_random
+from src.rules.password_hash_rule import check_weak_password_hash
 
 
 SECURITY_RULES = [
@@ -19,4 +20,5 @@ SECURITY_RULES = [
     check_path_traversal,
     check_command_injection,
     check_insecure_random,
+    check_weak_password_hash,
 ]
