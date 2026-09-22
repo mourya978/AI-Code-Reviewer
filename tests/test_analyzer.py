@@ -249,4 +249,32 @@ os.system("whoami")
         issue["rule"] == "PY008"
         for issue in issues
     )
-    
+def test_detects_insecure_random():
+    code = """
+import random
+
+token = random.randint(100000, 999999)
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY009"
+        and issue["severity"] == "MEDIUM"
+        for issue in issues
+    )
+
+
+def test_allows_secrets_module():
+    code = """
+import secrets
+
+token = secrets.randbelow(900000)
+"""
+
+    issues = analyze_code(code)
+
+    assert not any(
+        issue["rule"] == "PY009"
+        for issue in issues
+    )    
