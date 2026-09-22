@@ -1,4 +1,5 @@
 from src.analyzer import analyze_code
+from src.finding_manager import summarize_findings
 
 
 code = """
@@ -11,14 +12,29 @@ result = eval(user_input)
 
 
 issues = analyze_code(code)
+summary = summarize_findings(issues)
 
 
-print("Code Review Results")
-print("-------------------")
+print("AI Code Reviewer")
+print("================")
+print()
+
+print(f"Total issues: {summary['total']}")
+print(f"Critical:     {summary['counts']['CRITICAL']}")
+print(f"High:         {summary['counts']['HIGH']}")
+print(f"Medium:       {summary['counts']['MEDIUM']}")
+print(f"Low:          {summary['counts']['LOW']}")
+print(f"Info:         {summary['counts']['INFO']}")
+print(f"Highest:      {summary['highest_severity']}")
+
+print()
+print("Findings")
+print("--------")
 
 for issue in issues:
     print(
-        f"[{issue['type'].upper()}] "
+        f"[{issue['severity']}] "
+        f"{issue['rule']} | "
         f"Line {issue['line']}: "
         f"{issue['message']}"
     )
