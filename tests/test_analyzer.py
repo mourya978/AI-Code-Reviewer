@@ -326,3 +326,30 @@ def test_summarize_findings():
     assert summary["counts"]["LOW"] == 0
     assert summary["counts"]["INFO"] == 0
     assert summary["highest_severity"] == "CRITICAL"
+def test_generate_json_report():
+    from src.finding_manager import summarize_findings
+    from src.reporting import generate_json_report
+    import json
+
+    findings = [
+        {
+            "rule": "PY001",
+            "type": "security",
+            "severity": "HIGH",
+            "line": 5,
+            "message": "Use of eval() can execute untrusted code.",
+            "recommendation": "Avoid eval()."
+        }
+    ]
+
+    summary = summarize_findings(findings)
+
+    report = generate_json_report(findings, summary)
+
+    data = json.loads(report)
+
+    assert data["tool"] == "AI Code Reviewer"
+    assert data["summary"]["total"] == 1
+    assert data["summary"]["highest_severity"] == "HIGH"
+    assert len(data["findings"]) == 1
+    assert data["findings"][0]["rule"] == "PY001"
