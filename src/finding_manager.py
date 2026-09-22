@@ -41,3 +41,22 @@ def count_findings(findings):
             counts[severity] += 1
 
     return counts
+def summarize_findings(findings):
+    """
+    Create a summary of detected findings.
+    """
+
+    counts = count_findings(findings)
+
+    highest_severity = "INFO"
+
+    for severity in SEVERITY_ORDER:
+        if counts[severity] > 0:
+            highest_severity = severity
+            break
+
+    return {
+        "total": len(findings),
+        "counts": counts,
+        "highest_severity": highest_severity,
+    }

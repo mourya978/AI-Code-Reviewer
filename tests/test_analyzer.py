@@ -307,3 +307,22 @@ file_hash = hashlib.sha256(file_data).hexdigest()
         issue["rule"] == "PY010"
         for issue in issues
     )
+def test_summarize_findings():
+    from src.finding_manager import summarize_findings
+
+    findings = [
+        {"severity": "HIGH"},
+        {"severity": "MEDIUM"},
+        {"severity": "HIGH"},
+        {"severity": "CRITICAL"},
+    ]
+
+    summary = summarize_findings(findings)
+
+    assert summary["total"] == 4
+    assert summary["counts"]["CRITICAL"] == 1
+    assert summary["counts"]["HIGH"] == 2
+    assert summary["counts"]["MEDIUM"] == 1
+    assert summary["counts"]["LOW"] == 0
+    assert summary["counts"]["INFO"] == 0
+    assert summary["highest_severity"] == "CRITICAL"
