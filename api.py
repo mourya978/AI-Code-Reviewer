@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.analyzer import analyze_code
 from src.finding_manager import summarize_findings
@@ -13,7 +13,12 @@ app = FastAPI(
 
 
 class CodeRequest(BaseModel):
-    code: str
+    code: str = Field(
+        ...,
+        min_length=1,
+        max_length=100_000,
+        description="Python source code to analyze."
+    )
 
 
 @app.get("/")

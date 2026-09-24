@@ -54,3 +54,25 @@ print(f"Hello {name}")
 
     assert data["summary"]["total"] == 0
     assert data["findings"] == []
+def test_analyze_endpoint_rejects_empty_code():
+    response = client.post(
+        "/analyze",
+        json={
+            "code": ""
+        }
+    )
+
+    assert response.status_code == 422
+
+
+def test_analyze_endpoint_rejects_oversized_code():
+    large_code = "a" * 100001
+
+    response = client.post(
+        "/analyze",
+        json={
+            "code": large_code
+        }
+    )
+
+    assert response.status_code == 422
