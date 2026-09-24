@@ -76,3 +76,32 @@ def test_analyze_endpoint_rejects_oversized_code():
     )
 
     assert response.status_code == 422
+def test_api_handles_unexpected_errors(monkeypatch):
+    from fastapi.testclient import TestClient
+    from api import app
+
+    def raise_error(code):
+        raise RuntimeError("test error")
+
+    monkeypatch.setattr("api.analyze_code", raise_error)
+
+    test_client = TestClient(
+        app,
+        raise_server_exceptions=False
+    )
+
+    response = test_client.post(
+        "/analyze",
+        json={
+            "code": "print('hello')"
+        }
+    )
+
+    assert response.status_code == 500
+
+    data = response.json()
+
+    assert data["error"] == "Internal server error"
+    assert data["message"] == (
+        "An unexpected error occurred while processing the request."
+    )

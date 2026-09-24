@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from src.analyzer import analyze_code
@@ -10,6 +11,18 @@ app = FastAPI(
     description="API for analyzing Python code for security issues.",
     version="1.0.0",
 )
+@app.exception_handler(Exception)
+async def general_exception_handler(
+    request: Request,
+    exc: Exception
+):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal server error",
+            "message": "An unexpected error occurred while processing the request."
+        },
+    )
 
 
 class CodeRequest(BaseModel):
