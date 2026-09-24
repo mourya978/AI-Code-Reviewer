@@ -353,3 +353,21 @@ def test_generate_json_report():
     assert data["summary"]["highest_severity"] == "HIGH"
     assert len(data["findings"]) == 1
     assert data["findings"][0]["rule"] == "PY001"
+def test_explain_finding():
+    from src.ai.explainer import explain_finding
+
+    finding = {
+        "rule": "PY001",
+        "severity": "HIGH",
+        "message": "Use of eval() can execute untrusted code.",
+        "recommendation": "Avoid eval().",
+    }
+
+    explanation = explain_finding(finding)
+
+    assert explanation["rule"] == "PY001"
+    assert explanation["severity"] == "HIGH"
+    assert explanation["explanation"] == (
+        "Use of eval() can execute untrusted code."
+    )
+    assert explanation["recommendation"] == "Avoid eval()."
