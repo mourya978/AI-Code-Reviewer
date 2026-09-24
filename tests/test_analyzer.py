@@ -371,3 +371,27 @@ def test_explain_finding():
         "Use of eval() can execute untrusted code."
     )
     assert explanation["recommendation"] == "Avoid eval()."
+def test_build_explanation_prompt():
+    from src.ai.prompt_builder import build_explanation_prompt
+
+    finding = {
+        "rule": "PY001",
+        "severity": "HIGH",
+        "message": "Use of eval() can execute untrusted code.",
+        "recommendation": "Avoid eval().",
+    }
+
+    code_context = "result = eval(user_input)"
+
+    prompt = build_explanation_prompt(
+        finding,
+        code_context
+    )
+
+    assert "PY001" in prompt
+    assert "HIGH" in prompt
+    assert "Use of eval()" in prompt
+    assert "Avoid eval()" in prompt
+    assert "result = eval(user_input)" in prompt
+    assert "Security Impact" in prompt
+    assert "Recommended Fix" in prompt
