@@ -1,3 +1,5 @@
+import pytest
+
 from fastapi.testclient import TestClient
 
 from api import app
@@ -5,6 +7,22 @@ from api import app
 
 client = TestClient(app)
 
+
+@pytest.fixture(autouse=True)
+def mock_ai_explanation(monkeypatch):
+    def fake_explain_finding_with_ai(finding, code_context):
+        return {
+            "rule": finding["rule"],
+            "severity": finding["severity"],
+            "ai_explanation": (
+                "Mock AI explanation for testing."
+            ),
+        }
+
+    monkeypatch.setattr(
+        "api.explain_finding_with_ai",
+        fake_explain_finding_with_ai
+    )
 
 def test_root_endpoint():
     response = client.get("/")
@@ -35,6 +53,10 @@ result = eval(user_input)
 
     assert data["findings"][0]["rule"] == "PY001"
     assert data["findings"][0]["severity"] == "HIGH"
+    assert len(data["ai_explanations"]) == 1
+    assert data["ai_explanations"][0]["rule"] == "PY001"
+    assert data["ai_explanations"][0]["severity"] == "HIGH"
+    assert "Mock AI explanation" in data["ai_explanations"][0]["ai_explanation"]
 
 
 def test_analyze_endpoint_clean_code():
@@ -54,6 +76,8 @@ print(f"Hello {name}")
 
     assert data["summary"]["total"] == 0
     assert data["findings"] == []
+
+
 def test_analyze_endpoint_rejects_empty_code():
     response = client.post(
         "/analyze",
@@ -76,6 +100,8 @@ def test_analyze_endpoint_rejects_oversized_code():
     )
 
     assert response.status_code == 422
+
+    
 def test_api_handles_unexpected_errors(monkeypatch):
     from fastapi.testclient import TestClient
     from api import app

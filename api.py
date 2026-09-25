@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from src.analyzer import analyze_code
 from src.finding_manager import summarize_findings
+from src.ai.explainer import explain_finding_with_ai
 
 
 app = FastAPI(
@@ -46,7 +47,17 @@ def analyze(request: CodeRequest):
     findings = analyze_code(request.code)
     summary = summarize_findings(findings)
 
+    ai_explanations = []
+
+    for finding in findings:
+        explanation = explain_finding_with_ai(
+            finding,
+            request.code
+        )
+        ai_explanations.append(explanation)
+
     return {
         "summary": summary,
         "findings": findings,
+        "ai_explanations": ai_explanations,
     }
