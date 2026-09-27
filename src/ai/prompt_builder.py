@@ -1,13 +1,12 @@
 def build_explanation_prompt(finding, code_context):
     """
-    Build a structured prompt for an AI security explanation.
+    Build a concise, structured prompt for an AI security explanation.
     """
 
     prompt = f"""
 You are a cybersecurity code-review assistant.
 
-Analyze the following security finding and explain it clearly
-to a software developer.
+Analyze the security finding below and explain it to a software developer.
 
 Security Rule:
 {finding["rule"]}
@@ -24,17 +23,42 @@ Recommendation:
 Relevant Code:
 ```python
 {code_context}
-Provide your response in the following structure:
+
+Return the response using EXACTLY these five sections:
 
 Explanation
+
+Explain what the vulnerability means.
+Maximum 2 sentences.
+
 Security Impact
+
+Explain what an attacker could achieve.
+Maximum 2 sentences.
+
 Why This Code Is Risky
+
+Explain why the provided code triggers this finding.
+Use at most 3 bullet points.
+
 Recommended Fix
+
+Give practical advice to fix the vulnerability.
+Maximum 3 sentences.
+
 Safer Code Example
 
-Keep the explanation technically accurate and concise.
+Provide a short corrected Python example.
+Maximum 12 lines of code.
 
-Do not invent vulnerabilities that are not supported by the finding
-or the provided code.
+Rules:
+
+Be technically accurate.
+Only discuss the vulnerability supported by the finding and code.
+Do not invent additional vulnerabilities.
+Keep the response under 300 words.
+Do not repeat the same explanation.
+
+Do not add any sections other than the five requested sections.
 """
     return prompt

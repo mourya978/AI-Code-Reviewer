@@ -3,7 +3,7 @@ from src.ai import llm_client
 
 def test_generate_response(monkeypatch):
     def fake_chat(model, messages):
-        assert model == "qwen2.5-coder:7b"
+        assert model == "qwen2.5-coder:1.5b"
         assert messages[0]["role"] == "user"
         assert messages[0]["content"] == "Explain eval."
 
