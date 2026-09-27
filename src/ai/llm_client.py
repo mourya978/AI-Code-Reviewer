@@ -1,7 +1,7 @@
 import ollama
 
 
-MODEL_NAME = "qwen2.5-coder:7b"
+MODEL_NAME = "qwen2.5-coder:1.5b"
 
 
 def generate_response(prompt):
