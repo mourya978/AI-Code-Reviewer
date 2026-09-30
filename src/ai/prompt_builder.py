@@ -1,12 +1,12 @@
 def build_explanation_prompt(finding, code_context):
     """
-    Build a concise, structured prompt for an AI security explanation.
+    Build a structured prompt for an AI security explanation.
     """
 
     prompt = f"""
 You are a cybersecurity code-review assistant.
 
-Analyze the security finding below and explain it to a software developer.
+Analyze the security finding below and explain it clearly to a software developer.
 
 Security Rule:
 {finding["rule"]}
@@ -23,42 +23,36 @@ Recommendation:
 Relevant Code:
 ```python
 {code_context}
-
-Return the response using EXACTLY these five sections:
+Provide your response using exactly these sections:
 
 Explanation
 
-Explain what the vulnerability means.
-Maximum 2 sentences.
+Explain the vulnerability in simple technical terms.
 
 Security Impact
 
-Explain what an attacker could achieve.
-Maximum 2 sentences.
+Explain what an attacker could potentially achieve.
 
 Why This Code Is Risky
 
-Explain why the provided code triggers this finding.
-Use at most 3 bullet points.
+Explain specifically why the provided code is unsafe.
 
 Recommended Fix
 
-Give practical advice to fix the vulnerability.
-Maximum 3 sentences.
+Explain how to fix the vulnerability.
 
+IMPORTANT:
+
+Never recommend the vulnerable function or pattern as the fix.
+For PY001 involving eval(), NEVER use eval() in the recommended fix.
+For eval(), recommend ast.literal_eval() for Python literals or json.loads() for JSON data.
+The recommended fix must actually remove the vulnerable use of eval().
+Do not claim that eval() becomes safe merely by putting it inside try/except.
+Do not invent vulnerabilities that are not supported by the finding or code.
 Safer Code Example
 
-Provide a short corrected Python example.
-Maximum 12 lines of code.
+Provide a corrected Python example that does NOT contain the vulnerable pattern.
 
-Rules:
-
-Be technically accurate.
-Only discuss the vulnerability supported by the finding and code.
-Do not invent additional vulnerabilities.
-Keep the response under 300 words.
-Do not repeat the same explanation.
-
-Do not add any sections other than the five requested sections.
+Keep the explanation technically accurate, practical, and concise.
 """
     return prompt
