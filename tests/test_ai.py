@@ -54,3 +54,29 @@ def test_explain_finding_with_ai(monkeypatch):
     assert result["rule"] == "PY001"
     assert result["severity"] == "HIGH"
     assert "eval()" in result["ai_explanation"]
+def test_explain_finding_with_ai_removes_internal_marker(monkeypatch):
+    from src.ai.explainer import explain_finding_with_ai
+
+    finding = {
+        "rule": "PY001",
+        "severity": "HIGH",
+        "message": "Use of eval() can execute untrusted code.",
+        "recommendation": "Avoid eval().",
+    }
+
+    def fake_generate_response(prompt):
+        return "This is the real explanation.\n### For PY001:\nInternal instructions"
+
+    monkeypatch.setattr(
+        "src.ai.explainer.generate_response",
+        fake_generate_response
+    )
+
+    result = explain_finding_with_ai(
+        finding,
+        "result = eval(user_input)"
+    )
+
+    assert result["rule"] == "PY001"
+    assert result["severity"] == "HIGH"
+    assert result["ai_explanation"] == "This is the real explanation."

@@ -395,3 +395,140 @@ def test_build_explanation_prompt():
     assert "result = eval(user_input)" in prompt
     assert "Security Impact" in prompt
     assert "Recommended Fix" in prompt
+def test_detects_command_injection_string_concatenation():
+    code = """
+import os
+
+host = input("Enter host: ")
+
+os.system("ping " + host)
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY008"
+        and issue["severity"] == "CRITICAL"
+        for issue in issues
+    )
+def test_ignores_hash_without_input():
+    code = """
+import hashlib
+
+hashlib.sha256()
+"""
+
+    issues = analyze_code(code)
+
+    assert not any(
+        issue["rule"] == "PY010"
+        for issue in issues
+    )
+
+
+def test_allows_sha256_for_username():
+    code = """
+import hashlib
+
+username = "mourya"
+hash_value = hashlib.sha256(username.encode()).hexdigest()
+"""
+
+    issues = analyze_code(code)
+
+    assert not any(
+        issue["rule"] == "PY010"
+        for issue in issues
+    )
+def test_detects_md5_password_hash():
+    code = """
+import hashlib
+
+password = "secret"
+password_hash = hashlib.md5(password.encode()).hexdigest()
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY010"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )
+
+
+def test_detects_sha1_password_hash():
+    code = """
+import hashlib
+
+password = "secret"
+password_hash = hashlib.sha1(password.encode()).hexdigest()
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY010"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )
+
+
+def test_detects_sha256_password_variable():
+    code = """
+import hashlib
+
+user_password = "secret"
+password_hash = hashlib.sha256(user_password).hexdigest()
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY010"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )
+def test_detects_path_traversal_string_concatenation():
+    code = """
+filename = input("Enter filename: ")
+
+with open("/var/data/" + filename, "r") as file:
+    data = file.read()
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY007"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )
+def test_sql_execute_without_query():
+    code = """
+cursor.execute()
+"""
+
+    issues = analyze_code(code)
+
+    assert issues == []
+
+
+def test_detects_sql_injection_string_concatenation():
+    code = """
+import sqlite3
+
+user_id = input("Enter user ID: ")
+
+cursor.execute(
+    "SELECT * FROM users WHERE id=" + user_id
+)
+"""
+
+    issues = analyze_code(code)
+
+    assert any(
+        issue["rule"] == "PY006"
+        and issue["severity"] == "HIGH"
+        for issue in issues
+    )
